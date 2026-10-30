@@ -1,0 +1,11 @@
+{
+  "name": "illawarra-cleaning-crew-apple",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "node scripts/prepare-site.mjs",
+    "dev": "npm run prepare && npm install --prefix .generated-site && npm run dev --prefix .generated-site",
+    "build": "npm run prepare && npm ci --prefix .generated-site && npm run build --prefix .generated-site",
+    "check:seo": "npm run prepare && node scripts/check-seo.mjs"
+  }
+}
