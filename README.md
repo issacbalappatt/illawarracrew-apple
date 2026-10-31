@@ -21,7 +21,15 @@ Generated images show scenes, not your work. Do not use them in the gallery, bef
 
 ## Live trial (GitHub Pages)
 
-Run `node scripts/build-pages.mjs` to build a static, trial-only copy into `dist-pages/`, then publish that folder to the `gh-pages` branch. GitHub Pages must be set to **Deploy from a branch: gh-pages, / (root)** (Settings, Pages). The trial copy cannot send bookings (dead Supabase URL), loads no Google tags and is noindex on every page. Live URL: https://issacbalappatt.github.io/illawarracrew-apple/
+Preview: https://issacbalappatt.github.io/illawarracrew-apple/
+
+The preview is trial-only: enquiries are disabled, the Supabase URL is a dead placeholder, Google tags are off and every page is noindex. It cannot send leads or production analytics.
+
+### Automatic publishing
+
+The `.github/workflows/deploy-pages.yml` workflow builds the preview and publishes it to `gh-pages` after each push to `main`. GitHub Pages should be set to **Deploy from a branch: gh-pages, / (root)** in Settings → Pages.
+
+Because the source submodule is private, add a repository Actions secret named `UPSTREAM_REPO_TOKEN`. Use a fine-grained personal access token with **Contents: read-only** access to `issacbalappatt/remix-of-illawarra-cleaning-crew`. Once the secret is saved, re-run the failed **Publish GitHub Pages preview** workflow from the Actions tab. Future pushes to `main` will build and publish automatically.
 
 ## SEO retention
 
