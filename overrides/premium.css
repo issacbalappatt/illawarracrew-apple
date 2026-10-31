@@ -142,3 +142,17 @@ html.lenis, html.lenis body { height: auto; }
 @media (max-width:480px) { .premium-form-grid { grid-template-columns:1fr; } .premium-enquiry { scroll-margin-top:16px; } }
 /* Arrow icons replace the legacy text chevron in the new editorial sections. */
 .premium-home .apple-link::after { content:none; }
+
+/* Room explorer: native scrolling controls and a stable image frame. */
+.premium-space-options{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 18px;scrollbar-width:thin}
+.premium-space-options button{flex:none;border:1px solid var(--apple-line,#d9d8d2);border-radius:99px;padding:11px 18px;font:inherit;font-size:14px;background:transparent;color:inherit;cursor:pointer;transition:background .2s,color .2s}
+.premium-space-options button[aria-pressed=true]{background:#252d29;color:#fff;border-color:#252d29}
+.premium-space-options button:focus-visible{outline:2px solid #567561;outline-offset:3px}
+.premium-space-feature{display:grid;grid-template-columns:1.5fr 1fr;border-radius:20px;overflow:hidden;background:var(--apple-soft,#efeee9)}
+.premium-space-feature>img{width:100%;height:100%;aspect-ratio:3/2;object-fit:cover}
+.premium-space-copy{padding:clamp(28px,4vw,64px);align-self:center}
+.premium-space-copy h3{font-size:clamp(28px,3vw,44px);line-height:1.08;letter-spacing:-.04em;margin:15px 0 20px}
+.premium-space-copy>p:not(.premium-eyebrow){line-height:1.7;opacity:.76;margin-bottom:26px}
+.premium-space-copy .apple-pill{font-size:14px}
+.premium-image-caption{font-size:12px;opacity:.6;margin-top:10px}
+@media(max-width:760px){.premium-space-feature{grid-template-columns:1fr}.premium-space-feature>img{height:auto}.premium-space-copy{padding:28px}.premium-space-options{margin-right:-16px;padding-right:16px}}

@@ -1,4 +1,4 @@
-import {useRef, useState, type FormEvent} from 'react';
+import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {ArrowUpRight, CheckCircle2} from 'lucide-react';
 import {Link} from '@/lib/rr-shim';
 import {invokeFunction} from '@/integrations/supabase/lazy';
@@ -7,6 +7,22 @@ import {newClientRequestId, recordLeadSuccess} from '@/lib/conversion';
 
 export default function QuickEnquiry() {
   const [state, setState] = useState<'idle'|'sending'|'success'|'error'>('idle');
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const prefill = (event: Event) => {
+      const detail = (event as CustomEvent<{service:string;message:string}>).detail;
+      if (!detail || !formRef.current) return;
+      const form = formRef.current;
+      const service = form.elements.namedItem('service') as HTMLSelectElement | null;
+      const message = form.elements.namedItem('message') as HTMLTextAreaElement | null;
+      if (service && Array.from(service.options).some(option => option.value === detail.service)) service.value = detail.service;
+      if (message && !message.value.trim()) message.value = detail.message;
+      const more = form.querySelector('details');
+      if (more) more.open = true;
+    };
+    window.addEventListener('icc:enquiry-context', prefill);
+    return () => window.removeEventListener('icc:enquiry-context', prefill);
+  }, []);
   const request = useRef<string | null>(null);
   const lock = useRef(false);
   const notice = useRef<HTMLDivElement>(null);
@@ -49,7 +65,7 @@ export default function QuickEnquiry() {
       <a href="tel:+61416592879">Prefer a chat? 0416 592 879</a>
     </div>
     {state === 'success' ? <div className="premium-success" ref={notice} tabIndex={-1} role="status"><CheckCircle2 size={32}/><h3>Thank you. We have your enquiry.</h3><p>Our team will be in touch using the details you provided.</p><button type="button" className="apple-link" onClick={() => setState('idle')}>Send another enquiry</button></div> :
-    <form className="premium-form" onSubmit={submit} aria-busy={state === 'sending'}>
+    <form ref={formRef} className="premium-form" onSubmit={submit} aria-busy={state === 'sending'}>
       <div className="premium-form-grid">
         <label>Your name<input name="name" autoComplete="name" required minLength={2} maxLength={100} placeholder="Full name"/></label>
         <label>Email address<input name="email" type="email" autoComplete="email" required maxLength={255} placeholder="you@example.com"/></label>

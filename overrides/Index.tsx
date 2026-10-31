@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import {ArrowUpRight, ArrowDown, Check} from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import {Link} from '@/lib/rr-shim';
@@ -17,6 +18,28 @@ const services = [
   {name: 'Airbnb cleaning', path: '/services/airbnb-cleaning', image: 'service-airbnb', body: 'A welcoming space for the next arrival.', tag: 'For your guests'},
   {name: 'Carpet cleaning', path: '/carpet-cleaning', image: 'service-carpet', body: 'Freshen the spaces you live in most.', tag: 'For underfoot comfort'},
 ] as const;
+
+const spaces = [
+  {image:'courtyard',label:'Living rooms',title:'Room to slow down.',body:'Floors, surfaces and the spaces where life happens. Tell us what you would love taken off your list.',service:'House cleaning',priority:'Living room floors and surfaces'},
+  {image:'dining',label:'Gathering spaces',title:'Ready for everyone.',body:'From weeknight dinners to a table full of friends. Plan a regular reset around your household.',service:'House cleaning',priority:'Kitchen and dining spaces'},
+  {image:'apartment',label:'Apartments',title:'A fresh city retreat.',body:'A clean that fits your apartment. Let us know about parking, lift access and the rooms you need.',service:'House cleaning',priority:'Apartment cleaning'},
+  {image:'cottage',label:'Bedrooms',title:'End the day with calm.',body:'Discuss dusting, floors and your bedroom priorities, with care around the things that make the room yours.',service:'House cleaning',priority:'Bedrooms and dusting'},
+  {image:'bathroom',label:'Bathrooms',title:'A little more attention.',body:'Tell us about showers, vanities and the areas that need a deeper clean. We will confirm the scope with you.',service:'Deep cleaning',priority:'Bathroom and shower deep cleaning'},
+  {image:'laundry',label:'Laundries',title:'Care for hardworking rooms.',body:'Bring the laundry and other utility spaces into your cleaning plan. Choose the priorities that suit your home.',service:'House cleaning',priority:'Laundry surfaces and floors'},
+  {image:'office',label:'Workplaces',title:'A better place to begin.',body:'Discuss your workplace, preferred cleaning times and the shared spaces that matter to your team.',service:'Office cleaning',priority:'Office and meeting room cleaning'},
+  {image:'entry',label:'Entrances',title:'A welcome home.',body:'Start with the first impression. Add your entryway, hallway and hard floors to your cleaning priorities.',service:'House cleaning',priority:'Entryway, hallways and hard floors'},
+];
+
+function Spaces() {
+  const [selected,setSelected]=useState(0);
+  const space=spaces[selected];
+  return <section className="premium-section apple-wrap premium-spaces" aria-labelledby="spaces-title">
+    <div className="premium-heading" data-reveal><div><p className="premium-eyebrow">Care that fits your space</p><h2 id="spaces-title">Every room.<br/>A little more calm.</h2></div><p>Explore the spaces we can help with. Choose a priority to start your enquiry.</p></div>
+    <div className="premium-space-options" aria-label="Explore cleaning priorities">{spaces.map((item,i)=><button key={item.image} type="button" aria-pressed={selected===i} onClick={()=>setSelected(i)}>{item.label}</button>)}</div>
+    <div className="premium-space-feature"><img key={space.image} src={media[`spaces-${space.image}` as keyof typeof media]} alt={`${space.label}: an illustrative Illawarra-style interior`} loading="lazy" decoding="async" width={1536} height={1024}/><div className="premium-space-copy" aria-live="polite"><p className="premium-eyebrow">{space.label}</p><h3>{space.title}</h3><p>{space.body}</p><a href="#enquire" className="apple-pill" onClick={()=>window.dispatchEvent(new CustomEvent('icc:enquiry-context',{detail:{service:space.service,message:`I'd like help with ${space.priority.toLowerCase()}.`}}))}>Enquire about this space <ArrowUpRight size={18}/></a></div></div>
+    <p className="premium-image-caption">Illustrative interiors inspired by Illawarra homes.</p>
+  </section>;
+}
 
 export default function Index() {
   const info = getBusinessInfo();
@@ -42,6 +65,8 @@ export default function Index() {
       <div className="premium-service-grid">{services.map(s=><Link to={s.path} key={s.path} className="premium-service" data-reveal><div className="premium-service-photo"><img src={media[s.image]} alt="" loading="lazy" decoding="async" width={768} height={640}/><span className="premium-service-arrow" aria-hidden="true"><ArrowUpRight size={22}/></span></div><span className="premium-eyebrow">{s.tag}</span><h3>{s.name}</h3><p>{s.body}</p></Link>)}</div>
       <div className="premium-more-services"><Link to="/services" className="apple-link">Explore all services <ArrowUpRight size={16}/></Link><p>Also here for windows, strata, builders cleans and more.</p></div>
     </section>
+
+    <Spaces/>
 
     <section className="premium-editorial">
       <div className="premium-editorial-photo"><img src={media['band-living']} alt="Sunlit family living room with timber floors and a leafy escarpment outlook" loading="lazy" width={1536} height={1024}/></div>
