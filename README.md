@@ -30,3 +30,7 @@ The existing per-route server-rendered SEO metadata, canonical URLs, service and
 ## Design
 
 Inspired by dickwu/apple-design-skill: clear visual hierarchy, touch-friendly controls, reduced-motion support, minimal colour, and translucency reserved for navigation. Original ICC brand and photography remain. No endorsement by Apple.
+
+## Premium experience update
+
+See [upgrade notes](docs/premium-upgrade.md) for photography sources, motion, enquiry behaviour and validation. All 20 editorial slots are refreshed with 15 original scenes plus a mobile hero crop. Real-job galleries remain original. The new homepage enquiry uses the existing backend in a configured production build; it is explicitly disabled on the GitHub Pages design preview. Run `node scripts/check-enquiry.mjs` after preparation and dependency installation.

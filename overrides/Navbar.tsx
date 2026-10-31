@@ -1,3 +1,4 @@
+import PremiumMotion from '@/components/motion/PremiumMotion';
 import {useEffect, useState, useRef} from 'react';
 import {Link, useLocation} from '@/lib/rr-shim';
 import {ChevronDown, Menu, Phone, X} from 'lucide-react';
@@ -52,6 +53,7 @@ export default function Navbar({showMobileCall = true}: {showMobileCall?: boolea
 
   return (
     <header className={'site-header apple-header fixed top-0 left-0 right-0 z-50' + (scrolled ? ' is-scrolled' : '')}>
+      <PremiumMotion/>
       <nav className="apple-nav" aria-label="Main navigation">
         <Link to="/" className="apple-logo"><IccLogo/></Link>
         <div className="apple-links">
@@ -64,7 +66,7 @@ export default function Navbar({showMobileCall = true}: {showMobileCall?: boolea
         </div>
         <div className="apple-nav-actions">
           <a className="apple-call" href="tel:+61416592879" aria-label="Call 0416 592 879"><Phone size={16}/></a>
-          <Link to="/book" className="apple-pill apple-pill-small apple-book">See your price</Link>
+          {loc.pathname === "/" ? <a href="#enquire" className="apple-pill apple-pill-small apple-book">Enquire now</a> : <Link to="/book" className="apple-pill apple-pill-small apple-book">See your price</Link>}
           <button className="apple-menu-btn" aria-expanded={open} aria-controls="apple-mobile-menu" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(v => !v)}>{open ? <X size={20}/> : <Menu size={20}/>}</button>
         </div>
       </nav>

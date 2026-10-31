@@ -20,6 +20,11 @@ cpSync(source, target, {
 // 2. Replace the homepage and navigation.
 for (const [from, to] of [
   ['Index.tsx', 'src/pages/Index.tsx'],
+  ['QuickEnquiry.tsx', 'src/components/forms/QuickEnquiry.tsx'],
+  ['PremiumMotion.tsx', 'src/components/motion/PremiumMotion.tsx'],
+  ['lenis.mjs', 'src/lib/vendor/lenis.mjs'],
+  ['lenis.d.mts', 'src/lib/vendor/lenis.d.mts'],
+  ['LICENSE-Lenis.txt', 'src/lib/vendor/LICENSE-Lenis.txt'],
   ['Navbar.tsx', 'src/components/layout/Navbar.tsx'],
   ['Book.tsx', 'src/pages/Book.tsx'],
   ['book.route.tsx', 'src/routes/book.tsx'],
@@ -79,7 +84,7 @@ cpSync(join(root, 'overrides/brand'), join(target, 'public/brand'), {recursive: 
 
 // 4. Append the design CSS.
 const styles = join(target, 'src/styles.css');
-writeFileSync(styles, readFileSync(styles, 'utf8') + '\n' + readFileSync(join(root, 'overrides/apple-theme.css'), 'utf8'));
+writeFileSync(styles, readFileSync(styles, 'utf8') + '\n' + readFileSync(join(root, 'overrides/apple-theme.css'), 'utf8') + '\n' + readFileSync(join(root, 'overrides/premium.css'), 'utf8'));
 
 // 5. Images. Every image in overrides/media/ is published as /media/apple/<name>.<ext>
 //    and exposed as appleMedia['<name>']. Required slots fall back to a real team photo.
@@ -131,3 +136,35 @@ writeFileSync(
 
 console.log('Prepared full site with preserved routes, media, SEO and booking code.');
 console.log(`Images: ${custom.length} custom, ${Object.keys(manifest).length - custom.length} using existing photos.`);
+
+// Homepage quick actions point to the inline enquiry, keeping visitors on the page.
+{
+  const file = join(target, 'src/components/layout/MobileStickyCTA.tsx');
+  let t = readFileSync(file, 'utf8');
+  t = t.replace("document.getElementById('quote-form')", "document.getElementById(pathname === '/' ? 'enquire' : 'quote-form')");
+  t = t.replace('Get a free quote\n', "{pathname === '/' ? 'Enquire now' : 'Get a free quote'}\n");
+  t = t.replace("behavior: 'smooth'", "behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'");
+  writeFileSync(file, t);
+}
+// Add service-specific editorial imagery without replacing real job galleries or evidence photos.
+{
+  const file = join(target, 'src/components/landing/LandingHero.tsx');
+  let t = readFileSync(file, 'utf8');
+  t = "import {appleMedia as premiumMedia} from '@/lib/appleMedia.generated';\n" + t;
+  const anchor = '  return (';
+  const selection = `  const premiumSlot = /Office|Commercial|Strata/.test(defaultService) ? 'service-office' : /Deep|Builders/.test(defaultService) ? 'service-deep' : /Lease/.test(defaultService) ? 'service-lease' : /Carpet/.test(defaultService) ? 'service-carpet' : /Airbnb/.test(defaultService) ? 'service-airbnb' : 'service-house';\n`;
+  t = t.replace(anchor, selection + anchor);
+  t = t.replace('<section className="relative pt-20', '<section className="premium-service-hero relative pt-20');
+  t = t.replace('<div className="container-custom relative z-10', '<img className="premium-inner-image" src={premiumMedia[premiumSlot]} alt="" width={1536} height={1024} decoding="async" fetchPriority="high"/>\n      <div className="container-custom relative z-10');
+  writeFileSync(file, t);
+}
+
+// Keep the hero quiet and avoid floating controls competing with the inline form.
+{
+  const file = join(target, 'src/components/layout/Layout.tsx');
+  let t = readFileSync(file, 'utf8');
+  t = t.replace('<TrustSignalsBar />', "{pathname !== '/' && <TrustSignalsBar />}");
+  t = t.replace('!hideQuickActions && !hasInlineQuote && <FloatingCallButton', "pathname !== '/' && !hideQuickActions && !hasInlineQuote && <FloatingCallButton");
+  t = t.replace('<main className="flex-1"', '<main data-page={pathname} className="apple-page flex-1"');
+  writeFileSync(file, t);
+}
