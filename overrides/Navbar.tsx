@@ -8,15 +8,32 @@ const services = [
   ['Strata cleaning', '/strata-cleaning-wollongong'], ['NDIS cleaning', '/ndis'], ['Builders cleaning', '/builders'],
   ['Airbnb cleaning', '/services/airbnb-cleaning'], ['Window cleaning', '/window-cleaning'], ['Carpet cleaning', '/carpet-cleaning'],
 ];
-const more = [['Pricing', '/pricing'], ['Service areas', '/locations'], ['Reviews', '/reviews'], ['About', '/about'], ['Contact', '/contact']];
+const more = [['Pricing', '/pricing'], ['Service areas', '/locations'], ['Reviews', '/reviews'], ['Journal', '/journal'], ['About', '/about']];
+
+/** Two-part logo (crew mark + wordmark) drawn as masks so it takes the theme colours in light and dark mode. */
+export function IccLogo() {
+  return (
+    <span className="icc-logo" role="img" aria-label="Illawarra Cleaning Crew">
+      <span className="icc-logo-mark"/>
+      <span className="icc-logo-word"/>
+    </span>
+  );
+}
 
 export default function Navbar({showMobileCall = true}: {showMobileCall?: boolean}) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const loc = useLocation();
   const {user} = useAuth();
   const drawer = useRef<HTMLDivElement>(null);
 
   useEffect(() => setOpen(false), [loc.pathname]);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8);
+    on();
+    window.addEventListener('scroll', on, {passive: true});
+    return () => window.removeEventListener('scroll', on);
+  }, []);
   useEffect(() => {
     if (!open) return;
     const old = document.body.style.overflow;
@@ -34,20 +51,20 @@ export default function Navbar({showMobileCall = true}: {showMobileCall?: boolea
   }, [open]);
 
   return (
-    <header className="site-header apple-header fixed top-0 left-0 right-0 z-50">
+    <header className={'site-header apple-header fixed top-0 left-0 right-0 z-50' + (scrolled ? ' is-scrolled' : '')}>
       <nav className="apple-nav" aria-label="Main navigation">
-        <Link to="/" className="apple-logo"><img src="/lovable-uploads/logo-204x96.webp" alt="Illawarra Cleaning Crew" width="102" height="48"/></Link>
+        <Link to="/" className="apple-logo"><IccLogo/></Link>
         <div className="apple-links">
           <div className="apple-drop">
             <Link to="/services">Services <ChevronDown size={14} aria-hidden="true"/></Link>
             <div className="apple-drop-content">{services.map(([name, path]) => <Link key={path} to={path}>{name}</Link>)}</div>
           </div>
           {more.map(([name, path]) => <Link key={path} to={path} aria-current={loc.pathname === path ? 'page' : undefined}>{name}</Link>)}
-          {user && <Link to="/account">My account</Link>}
+          {user && <Link to="/account">Account</Link>}
         </div>
         <div className="apple-nav-actions">
-          <a className="apple-call" href="tel:+61416592879" aria-label="Call 0416 592 879"><Phone size={17}/></a>
-          <Link to="/book" className="apple-pill apple-pill-small apple-book">Book a clean</Link>
+          <a className="apple-call" href="tel:+61416592879" aria-label="Call 0416 592 879"><Phone size={16}/></a>
+          <Link to="/book" className="apple-pill apple-pill-small apple-book">See your price</Link>
           <button className="apple-menu-btn" aria-expanded={open} aria-controls="apple-mobile-menu" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(v => !v)}>{open ? <X size={20}/> : <Menu size={20}/>}</button>
         </div>
       </nav>
@@ -57,9 +74,9 @@ export default function Navbar({showMobileCall = true}: {showMobileCall?: boolea
           <p>Cleaning services</p>
           {services.map(([name, path]) => <Link key={path} to={path}>{name}</Link>)}
           <p>Explore</p>
-          {more.map(([name, path]) => <Link key={path} to={path}>{name}</Link>)}
-          <Link to={user ? '/account' : '/login'}>{user ? 'My account' : 'Log in'}</Link>
-          <Link to="/book" className="apple-pill">Book a clean</Link>
+          {[...more, ['Contact', '/contact']].map(([name, path]) => <Link key={path} to={path}>{name}</Link>)}
+          <Link to={user ? '/account' : '/login'}>{user ? 'Account' : 'Log in'}</Link>
+          <Link to="/book" className="apple-pill">See your price</Link>
           {showMobileCall && <a className="apple-mobile-call" href="tel:+61416592879">Call 0416 592 879</a>}
         </div>
       )}

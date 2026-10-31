@@ -44,6 +44,8 @@ run('npm run build', gen);
 // 4. Render every page from the built worker.
 const sitemap = readFileSync(join(gen, 'public/sitemap.xml'), 'utf8');
 const paths = new Set(['/', '/book', '/booking', '/quote', '/contact', '/login', '/thank-you']);
+paths.add('/journal');
+for (const a of JSON.parse(readFileSync(join(root, 'overrides/journal.json'), 'utf8'))) paths.add(`/journal/${a.slug}`);
 for (const m of sitemap.matchAll(/<loc>https?:\/\/[^/<]+(\/[^<]*)<\/loc>/g)) paths.add(m[1].replace(/\/$/, '') || '/');
 
 const worker = spawn('npx', ['wrangler', 'dev', '--config', '.output/server/wrangler.json', '--compatibility-date', '2026-10-30', '--port', String(PORT)], {cwd: gen, stdio: ['ignore', 'pipe', 'pipe'], detached: true});
@@ -68,7 +70,7 @@ for (const p of paths) {
 process.kill(-worker.pid);
 
 // 5. Prefix root-absolute public asset paths with the base path.
-const prefixes = ['media/', 'lovable-uploads/', 'fonts/', 'gallery/', 'ai/', 'favicon.ico', 'og-image.png', 'placeholder.svg'];
+const prefixes = ['media/', 'brand/', 'lovable-uploads/', 'fonts/', 'gallery/', 'ai/', 'favicon.ico', 'og-image.png', 'placeholder.svg'];
 const re = new RegExp(`(["'(\`=\\s,])/(${prefixes.map(x => x.replace('.', '\\.')).join('|')})`, 'g');
 const walk = d => readdirSync(d).flatMap(f => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 let changed = 0;

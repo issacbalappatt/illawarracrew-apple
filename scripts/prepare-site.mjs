@@ -23,6 +23,9 @@ for (const [from, to] of [
   ['Navbar.tsx', 'src/components/layout/Navbar.tsx'],
   ['Book.tsx', 'src/pages/Book.tsx'],
   ['book.route.tsx', 'src/routes/book.tsx'],
+  ['Journal.tsx', 'src/pages/Journal.tsx'],
+  ['journal.index.route.tsx', 'src/routes/journal.index.tsx'],
+  ['journal.slug.route.tsx', 'src/routes/journal.$slug.tsx'],
 ]) {
   const out = join(target, to);
   mkdirSync(dirname(out), {recursive: true});
@@ -59,6 +62,19 @@ if (!shell.includes('apple-site')) {
     ].join('\n'));
     writeFileSync(form, f);
   } else if (!f.includes('ICC trial prefill')) console.warn('Booking form prefill anchor not found; skipped.');
+}
+
+// 3c. Journal data as a typed module, self-hosted font, recolourable logo masks,
+//     and dark-mode variants that follow the device setting.
+writeFileSync(join(target, 'src/data/journal.generated.ts'),
+  '// Generated from overrides/journal.json by scripts/prepare-site.mjs. Do not edit.\n' +
+  `const journal = ${readFileSync(join(root, 'overrides/journal.json'), 'utf8').trim()};\nexport default journal;\n`);
+cpSync(join(root, 'overrides/fonts'), join(target, 'public/fonts/icc'), {recursive: true});
+cpSync(join(root, 'overrides/brand'), join(target, 'public/brand'), {recursive: true});
+{
+  const css = join(target, 'src/styles.css');
+  const t = readFileSync(css, 'utf8');
+  if (t.includes('@custom-variant dark (&:is(.dark *));')) writeFileSync(css, t.replace('@custom-variant dark (&:is(.dark *));', '@custom-variant dark (@media (prefers-color-scheme: dark));'));
 }
 
 // 4. Append the design CSS.

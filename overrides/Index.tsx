@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type CSSProperties} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import {Link} from '@/lib/rr-shim';
@@ -7,54 +7,47 @@ import HomepageFAQ from '@/components/sections/HomepageFAQ';
 import ServiceAreas from '@/components/sections/ServiceAreas';
 import {getBusinessInfo} from '@/lib/businessInfo';
 import {appleMedia as media} from '@/lib/appleMedia.generated';
+import journal from '@/data/journal.generated';
+
+// What Australians most often complain about in cleaning services, paired with our answer.
+const promises = [
+  {pain: 'A different cleaner every visit.', title: 'The same familiar cleaner.', body: 'We match you with one cleaner or a small team and keep them on your home. If they are ever away, you hear from us before the visit, not on the doorstep.'},
+  {pain: 'Explaining your home all over again.', title: 'Your home plan, remembered.', body: 'Priorities room by room, products you prefer, pets, access and what not to touch. Written down once, followed every visit.'},
+  {pain: 'An invoice higher than the quote.', title: 'The price you approve. Nothing added.', body: 'You see your price before you book. Anything extra is agreed with you first, never added after.'},
+  {pain: 'Chasing a company to fix a missed spot.', title: 'Not right? We come back.', body: 'Tell us what was missed and we return to make it right. No forms, no argument.'},
+  {pain: 'Not knowing who is in your home.', title: 'Local people. Paid properly.', body: 'Locally owned in the Illawarra. Insured, police-checked and paid fairly for skilled work, so good people stay.'},
+];
+
+const lives = [
+  {key: 'families', label: 'Busy families', image: media['service-house'], title: 'More evenings, fewer chores.', body: 'A fixed weekly slot that works around school runs, with the kitchen and bathrooms done first.', points: ['Same day and time every week', 'Kitchen reset and bathrooms first', 'Beds changed with linen you leave out'], to: '/book'},
+  {key: 'pets', label: 'Pets and sensitivities', image: media['room-living'], title: 'Cleaning that respects every resident.', body: 'Tell us about your pets, allergies and scents you prefer. We plan the clean around them.', points: ['Pet access and routines in your home plan', 'Fragrance-free, or your own products', 'Extra care with hair on floors and furniture'], to: '/book'},
+  {key: 'reset', label: 'A judgement-free reset', image: media['service-deep'], title: 'Life got busy. That is all.', body: 'A new baby, illness, long hours or simply a hard month. You never need to tidy before we arrive.', points: ['You choose the priorities', 'Clear scope and price before we start', 'Then a lighter regular plan, if you want one'], to: '/book'},
+  {key: 'older', label: 'Older residents', image: media['step-2'], title: 'A familiar face, on a regular day.', body: 'The same person each visit, help with the heavier jobs, and an optional update for a family member after each clean.', points: ['Same cleaner, same day', 'Floors, bathrooms and high dusting', 'Optional updates to a family contact'], to: '/book'},
+  {key: 'coastal', label: 'Coastal homes', image: media['band-living'], title: 'Sand, salt and humidity, handled.', body: 'Homes near the water need a little more. We plan for it every visit.', points: ['Tracked-in sand from floors and door tracks', 'Salt film on glass doors within reach', 'Bathrooms and humid corners kept fresh'], to: '/book'},
+  {key: 'moving', label: 'Moving out', image: media['service-lease'], title: 'Hand back the keys with confidence.', body: 'A detailed end of lease clean, priced before we start, ready for your final inspection.', points: ['Fixed-price estimate in a minute', 'Oven, windows and add-ons as you need', 'Bond-focused checklist'], to: '/book'},
+];
 
 const services = [
-  {name: 'House cleaning', path: '/residential', image: media['service-house'], alt: 'Cleaner smoothing fresh bed linen', body: 'Weekly, fortnightly or one-off.'},
-  {name: 'Deep cleaning', path: '/deep-clean', image: media['service-deep'], alt: 'Gloved hand using a squeegee on shower glass', body: 'A full reset, top to bottom.'},
-  {name: 'End of lease', path: '/end-of-lease', image: media['service-lease'], alt: 'Cleaner detailing a sliding door track', body: 'Ready for your final inspection.'},
-  {name: 'Office cleaning', path: '/office', image: media['service-office'], alt: 'Cleaner wiping down an office desk', body: 'Workplaces across the Illawarra.'},
-  {name: 'Carpet cleaning', path: '/carpet-cleaning', image: media['service-carpet'], alt: 'Vacuum head on a wool carpet', body: 'Priced per room.'},
-  {name: 'Airbnb cleaning', path: '/services/airbnb-cleaning', image: media['service-airbnb'], alt: 'Freshly made guest bed with linen throw', body: 'Turnovers between guests.'},
+  {name: 'House cleaning', path: '/residential', image: media['service-house'], body: 'Weekly, fortnightly or one-off.'},
+  {name: 'Deep cleaning', path: '/deep-clean', image: media['service-deep'], body: 'A full reset, top to bottom.'},
+  {name: 'End of lease', path: '/end-of-lease', image: media['service-lease'], body: 'Ready for your final inspection.'},
+  {name: 'Office cleaning', path: '/office', image: media['service-office'], body: 'Workplaces across the Illawarra.'},
+  {name: 'Carpet cleaning', path: '/carpet-cleaning', image: media['service-carpet'], body: 'Priced per room.'},
+  {name: 'Airbnb cleaning', path: '/services/airbnb-cleaning', image: media['service-airbnb'], body: 'Turnovers between guests.'},
 ];
-
-const moreServices: [string, string][] = [
-  ['Strata', '/strata-cleaning-wollongong'], ['NDIS', '/ndis'], ['Builders', '/builders'], ['Windows', '/window-cleaning'],
-  ['Pressure washing', '/pressure-washing'], ['Solar panels', '/solar-panel-cleaning'], ['Gutters', '/gutter-cleaning'],
-];
-
-const rooms = [
-  {name: 'Kitchen', image: media['room-kitchen'], alt: 'Gloved hands wiping a stone benchtop', title: 'The kitchen, reset.', body: 'Benchtops, splashbacks, sink, cabinet fronts and appliance doors. Inside the oven and fridge on request.'},
-  {name: 'Bathroom', image: media['room-bathroom'], alt: 'Walk-in shower with clear glass', title: 'Bathrooms that feel new.', body: 'Showers, glass, tiles and grout lines, vanities, mirrors and floors, finished properly.'},
-  {name: 'Living', image: media['room-living'], alt: 'Cleaner vacuuming a wool rug in a living room', title: 'Living areas, calm again.', body: 'Floors and rugs, skirting boards, door frames, switches and every surface you touch.'},
-  {name: 'Laundry', image: media['room-laundry'], alt: 'Gloved hand wiping a laundry benchtop', title: 'Even the laundry.', body: 'Benches, sinks, machine fronts and floors. The small rooms get the same care.'},
-];
-
-const details = [
-  {image: media['detail-faucet'], alt: 'Gloved hand polishing a kitchen tap', title: 'Tapware polished, not just wiped.'},
-  {image: media['detail-rangehood'], alt: 'Cleaner wiping under a rangehood', title: 'Under the rangehood, where grease hides.'},
-  {image: media['detail-linen'], alt: 'Folded fresh linen', title: 'Beds made with fresh linen you leave out.'},
-];
-
-const statement = 'Your home should feel calm the moment you walk in. We take care of the rest: the grout, the oven door, the skirting boards, and the corners you keep meaning to get to.';
-
-function InkWords({text}: {text: string}) {
-  return <>{text.split(' ').map((word, i) => <span className="apple-word" key={i}>{word}{' '}</span>)}</>;
-}
 
 function Shelf() {
   const track = useRef<HTMLUListElement>(null);
   const [edge, setEdge] = useState({start: true, end: false});
   const update = () => {
     const el = track.current;
-    if (!el) return;
-    setEdge({start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8});
+    if (el) setEdge({start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth > el.scrollWidth - 8});
   };
-  useEffect(() => { update(); }, []);
+  useEffect(update, []);
   const go = (dir: number) => {
     const el = track.current;
-    if (!el) return;
-    const card = el.querySelector('li');
-    el.scrollBy({left: dir * ((card?.clientWidth || 320) + 20), behavior: 'smooth'});
+    const card = el?.querySelector('li');
+    el?.scrollBy({left: dir * ((card?.clientWidth || 320) + 20), behavior: 'smooth'});
   };
   return (
     <>
@@ -62,7 +55,7 @@ function Shelf() {
         {services.map(s => (
           <li key={s.path}>
             <Link to={s.path} className="apple-tile">
-              <img src={s.image} alt={s.alt} loading="lazy" decoding="async" width="800" height="1200"/>
+              <img src={s.image} alt="" loading="lazy" decoding="async"/>
               <span className="apple-tile-copy"><strong>{s.name}</strong><span>{s.body}</span></span>
             </Link>
           </li>
@@ -76,61 +69,100 @@ function Shelf() {
   );
 }
 
-function RoomStory() {
-  const [active, setActive] = useState(0);
-  const steps = useRef<(HTMLDivElement | null)[]>([]);
-  useEffect(() => {
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.index)); });
-    }, {rootMargin: '-45% 0px -45% 0px'});
-    steps.current.forEach(el => el && io.observe(el));
-    return () => io.disconnect();
-  }, []);
+function LifeSelector() {
+  const [active, setActive] = useState(lives[0].key);
+  const life = lives.find(l => l.key === active)!;
   return (
-    <div className="apple-story">
-      <div className="apple-story-media" aria-hidden="true">
-        {rooms.map((r, i) => <img key={r.name} src={r.image} alt="" loading="lazy" decoding="async" className={i === active ? 'is-active' : undefined}/>)}
-        <div className="apple-story-dots">{rooms.map((r, i) => <span key={r.name} className={i === active ? 'is-active' : undefined}/>)}</div>
-      </div>
-      <div className="apple-story-steps">
-        {rooms.map((r, i) => (
-          <div key={r.name} className={'apple-story-step' + (i === active ? ' is-active' : '')} data-index={i} ref={el => { steps.current[i] = el; }}>
-            <img className="apple-story-inline" src={r.image} alt={r.alt} loading="lazy" decoding="async"/>
-            <p className="apple-story-kicker">{r.name}</p>
-            <h3>{r.title}</h3>
-            <p>{r.body}</p>
-          </div>
+    <div className="icc-life">
+      <div className="icc-life-tabs" role="tablist" aria-label="Choose what fits your home">
+        {lives.map(l => (
+          <button key={l.key} type="button" role="tab" id={`tab-${l.key}`} aria-controls="life-panel" aria-selected={l.key === active} className={l.key === active ? 'is-on' : undefined} onClick={() => setActive(l.key)}>
+            {l.label}
+          </button>
         ))}
       </div>
+      <div className="icc-life-panel" id="life-panel" role="tabpanel" aria-labelledby={`tab-${life.key}`} key={life.key}>
+        <figure className="icc-life-media"><img src={life.image} alt="" decoding="async"/></figure>
+        <div className="icc-life-copy">
+          <h3>{life.title}</h3>
+          <p>{life.body}</p>
+          <ul>{life.points.map(p => <li key={p}>{p}</li>)}</ul>
+          <Link to={life.to} className="apple-pill">See your price</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TimeBack() {
+  const [hours, setHours] = useState(3);
+  const year = hours * 52;
+  const days = Math.round(year / 8);
+  return (
+    <div className="icc-calc">
+      <label htmlFor="hours-range">Hours you spend cleaning each week</label>
+      <div className="icc-calc-row">
+        <input id="hours-range" type="range" min={1} max={10} step={0.5} value={hours} onChange={e => setHours(Number(e.target.value))}/>
+        <output htmlFor="hours-range">{hours} hrs</output>
+      </div>
+      <p className="icc-calc-big"><strong>{year}</strong> hours a year</p>
+      <p className="icc-calc-small">That is about {days} full days. Imagine them back.</p>
     </div>
   );
 }
 
 export default function Index() {
   const info = getBusinessInfo();
-  const finale = {'--apple-finale': `url(${media.finale})`} as CSSProperties;
+  const articles = (journal as {slug: string; title: string; dek: string; category: string; image: string}[]).slice(0, 3);
   return (
     <Layout>
-      <div className="apple-home">
-        <section className="apple-hero">
-          <div className="apple-wrap apple-hero-copy">
-            <h1>Cleaners in Wollongong,{' '}<br/>done properly.</h1>
-            <p className="apple-lead">House, end of lease and office cleaning across Wollongong and the Illawarra, by a local, insured and police&#8209;checked team.</p>
+      <div className="apple-home icc-home">
+        <section className="icc-hero">
+          <img className="icc-hero-img" src={media.hero} alt="Cleaner in uniform wiping a marble kitchen island in a coastal home" fetchPriority="high" decoding="async"/>
+          <div className="icc-hero-shade" aria-hidden="true"/>
+          <div className="apple-wrap icc-hero-copy">
+            <h1>Home cleaning in Wollongong, by people you know.</h1>
+            <p>The same familiar cleaner every visit. A price you approve first. A local team that answers the phone.</p>
             <div className="apple-actions">
-              <Link to="/book" className="apple-pill">Book a clean</Link>
-              <Link to="/pricing" className="apple-link">See pricing</Link>
+              <Link to="/book" className="apple-pill apple-pill-light">See your price</Link>
+              <a href="#different" className="apple-link apple-link-light">How we are different</a>
             </div>
-            <p className="apple-proof"><span aria-hidden="true">★</span> Rated {info.reviews.ratingValue} from {info.reviews.reviewCount} Google reviews</p>
+            <p className="icc-hero-proof"><span aria-hidden="true">★★★★★</span> {info.reviews.ratingValue} from {info.reviews.reviewCount} Google reviews</p>
           </div>
-          <figure className="apple-hero-media">
-            <img src={media.hero} alt="Cleaner in uniform wiping a marble kitchen island in a coastal home" width="1536" height="1024" fetchPriority="high" decoding="async"/>
-          </figure>
         </section>
 
-        <section className="apple-statement" aria-label="Our approach">
+        <section className="icc-different" id="different">
           <div className="apple-wrap">
-            <p><InkWords text={statement}/></p>
-            <Link to="/about" className="apple-link">Meet the crew</Link>
+            <h2>Most cleaners are good once.<br/>We are built for every time after.</h2>
+            <p className="icc-intro">We read what Australians say about cleaning services. The same five problems come up again and again. So we designed around them.</p>
+            <ol className="icc-promises">
+              {promises.map(p => (
+                <li key={p.title}>
+                  <p className="icc-pain">{p.pain}</p>
+                  <div><h3>{p.title}</h3><p>{p.body}</p></div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="icc-lives">
+          <div className="apple-wrap">
+            <h2>Cleaning that fits your life.</h2>
+            <p className="icc-intro">Every home is different. Choose what sounds like yours.</p>
+            <LifeSelector/>
+          </div>
+        </section>
+
+        <section className="icc-time">
+          <div className="apple-wrap icc-time-grid">
+            <div>
+              <h2>Get your Saturdays back.</h2>
+              <p className="icc-intro">Australian women spend an average of 4 hours 53 minutes a day on unpaid work, and men 3 hours 52 minutes. More than a third of women say they often feel rushed.</p>
+              <p className="icc-cite">Australian Bureau of Statistics, How Australians Use Their Time, 2024.</p>
+              <Link to="/journal/buying-time-not-things" className="apple-link">Why buying time makes people happier</Link>
+            </div>
+            <TimeBack/>
           </div>
         </section>
 
@@ -143,60 +175,21 @@ export default function Index() {
             <Shelf/>
             <nav className="apple-also" aria-label="More cleaning services">
               <span>Also available:</span>
-              {moreServices.map(([name, path]) => <Link key={path} to={path}>{name}</Link>)}
+              {[['Strata', '/strata-cleaning-wollongong'], ['NDIS', '/ndis'], ['Builders', '/builders'], ['Windows', '/window-cleaning'], ['Pressure washing', '/pressure-washing'], ['Solar panels', '/solar-panel-cleaning'], ['Gutters', '/gutter-cleaning']].map(([n, p]) => <Link key={p} to={p}>{n}</Link>)}
             </nav>
           </div>
         </section>
 
-        <section className="apple-rooms">
-          <div className="apple-wrap">
-            <h2 className="apple-rooms-title">Room by room.<br/>Nothing skipped.</h2>
-            <RoomStory/>
-          </div>
-        </section>
-
-        <section className="apple-band">
-          <img src={media['band-living']} alt="Sunlit coastal living room with an ocean view" loading="lazy" decoding="async"/>
-          <div className="apple-band-copy">
-            <h2>More time for this.</h2>
-            <p>Come home to a clean house and spend the weekend on what you actually enjoy.</p>
-          </div>
-        </section>
-
-        <section className="apple-details">
-          <div className="apple-wrap">
-            <h2>Take a closer look.</h2>
-            <div className="apple-details-grid">
-              {details.map(d => (
-                <figure key={d.title}>
-                  <img src={d.image} alt={d.alt} loading="lazy" decoding="async" width="1536" height="1024"/>
-                  <figcaption>{d.title}</figcaption>
-                </figure>
-              ))}
+        <section className="icc-local">
+          <div className="apple-wrap icc-local-grid">
+            <div>
+              <h2>A cleaner home.<br/>A stronger Illawarra.</h2>
+              <p>We are locally owned, and our team lives here too. When you book with us, the money stays in the Illawarra and supports local jobs.</p>
             </div>
-          </div>
-        </section>
-
-        <section className="apple-trust">
-          <div className="apple-wrap">
-            <h2>Peace of mind, built in.</h2>
-            <div className="apple-trust-grid">
-              <div><h3>Fully insured</h3><p>Our team is covered on every job, at home or at work.</p></div>
-              <div><h3>Police-checked</h3><p>Every cleaner who comes to your place has a current police check.</p></div>
-              <div><h3>Price confirmed first</h3><p>We confirm the scope, timing and price before any work begins.</p></div>
-            </div>
-          </div>
-        </section>
-
-        <section className="apple-steps">
-          <div className="apple-wrap">
-            <h2>Booked in three steps.</h2>
-            <ol>
-              <li><img src={media['step-1']} alt="Hands typing on a laptop at a kitchen table" loading="lazy" decoding="async"/><h3>Tell us about your space</h3><p>Pick a service, your home size and a day. You see the price as you go.</p></li>
-              <li><img src={media['step-2']} alt="Cleaner arriving at a front door with a cleaning caddy" loading="lazy" decoding="async"/><h3>We confirm the details</h3><p>We call or text to confirm the scope, price and time.</p></li>
-              <li><img src={media['step-3']} alt="Keys placed in a bowl in a clean entry hall" loading="lazy" decoding="async"/><h3>Come home to it</h3><p>Walk in to a clean, calm place.</p></li>
-            </ol>
-            <Link to="/book" className="apple-pill">Book a clean</Link>
+            <figure className="icc-stat">
+              <strong>55%</strong>
+              <figcaption>of Australians are willing to pay more to support small businesses they value. <cite>CommBank research, April 2026.</cite></figcaption>
+            </figure>
           </div>
         </section>
 
@@ -208,16 +201,36 @@ export default function Index() {
           </div>
         </section>
 
+        <section className="icc-journal-teaser">
+          <div className="apple-wrap">
+            <div className="apple-section-head">
+              <h2>The Journal.</h2>
+              <Link to="/journal" className="apple-link">All articles</Link>
+            </div>
+            <p className="icc-intro">What the research says about a clean home, sleep, focus and time.</p>
+            <div className="icc-jcards">
+              {articles.map(a => (
+                <Link key={a.slug} to={`/journal/${a.slug}`} className="icc-jcard">
+                  <img src={media[a.image as keyof typeof media]} alt="" loading="lazy" decoding="async"/>
+                  <span className="icc-jcard-cat">{a.category}</span>
+                  <strong>{a.title}</strong>
+                  <span>{a.dek}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <ServiceAreas/>
         <HomepageFAQ/>
 
-        <section className="apple-finale" style={finale}>
+        <section className="icc-finale">
           <div className="apple-wrap">
-            <h2>Ready when you are.</h2>
-            <p>See your price in under a minute, then pick a day that suits you.</p>
+            <h2>Your home, cared for.</h2>
+            <p>See your price in under a minute. Then pick a day that suits you.</p>
             <div className="apple-actions">
-              <Link to="/book" className="apple-pill apple-pill-light">Book a clean</Link>
-              <Link to="/contact" className="apple-link apple-link-light">Talk to our team</Link>
+              <Link to="/book" className="apple-pill">See your price</Link>
+              <Link to="/contact" className="apple-link">Talk to our team</Link>
             </div>
           </div>
         </section>
