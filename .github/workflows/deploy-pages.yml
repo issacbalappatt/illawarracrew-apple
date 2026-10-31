@@ -1,0 +1,44 @@
+name: Publish GitHub Pages preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-preview
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require access to the private source repository
+        if: ${{ secrets.UPSTREAM_REPO_TOKEN == '' }}
+        run: |
+          echo "::error::Add the UPSTREAM_REPO_TOKEN Actions secret. It needs read access to issacbalappatt/remix-of-illawarra-cleaning-crew."
+          exit 1
+
+      - name: Check out the site and source submodule
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.UPSTREAM_REPO_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the safe static preview
+        run: node scripts/build-pages.mjs
+
+      - name: Publish to the GitHub Pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist-pages
+          publish_branch: gh-pages
