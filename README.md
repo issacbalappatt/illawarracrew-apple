@@ -19,6 +19,10 @@ The homepage has nine image slots: hero, service-house, service-lease, service-d
 
 Generated images show scenes, not your work. Do not use them in the gallery, before-and-after sections or anywhere a photo is presented as a real job.
 
+## Live trial (GitHub Pages)
+
+Run `node scripts/build-pages.mjs` to build a static, trial-only copy into `dist-pages/`, then publish that folder to the `gh-pages` branch. GitHub Pages must be set to **Deploy from a branch: gh-pages, / (root)** (Settings, Pages). The trial copy cannot send bookings (dead Supabase URL), loads no Google tags and is noindex on every page. Live URL: https://issacbalappatt.github.io/illawarracrew-apple/
+
 ## SEO retention
 
 The existing per-route server-rendered SEO metadata, canonical URLs, service and suburb landing pages, LocalBusiness schema, FAQ schema, reviews, internal links, sitemap, robots.txt and llms.txt are retained. The new homepage uses semantic heading hierarchy, descriptive links, visible service descriptions and image alt text. Run npm run check:seo before every release. Static checks do not guarantee Google rankings; crawl deployed HTML, inspect structured data and validate Core Web Vitals before repointing your live domain.
