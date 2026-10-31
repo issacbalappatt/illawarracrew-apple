@@ -1,0 +1,1 @@
+import{o as e,t}from"./react-BqBvWGiZ.js";import{t as n}from"./useRouter-VsepivXa.js";var r=e(t());function i(){let e=n();return(0,r.useEffect)(()=>{e.navigate({to:`/office`,replace:!0})},[e]),null}export{i as component};

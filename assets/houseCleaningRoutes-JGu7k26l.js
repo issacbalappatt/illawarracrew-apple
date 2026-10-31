@@ -1,0 +1,1 @@
+var e=new Set([`corrimal`,`thirroul`,`woonona`,`fairy-meadow`,`figtree`,`bulli`,`dapto`,`shellharbour`,`kiama`,`albion-park`,`helensburgh`,`unanderra`,`austinmer`,`oak-flats`,`port-kembla`,`warrawong`]);function t(t){return e.has(t)}function n(e){return t(e)?`/house-cleaning-${e}`:`/locations/${e}`}export{t as n,n as t};

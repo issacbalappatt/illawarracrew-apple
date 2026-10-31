@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-BurxjvZa.js";import{t}from"./Login-0ra5ifWa.js";var n=e(),r=()=>(0,n.jsx)(t,{isSignUp:!0});export{r as component};

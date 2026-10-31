@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-BurxjvZa.js";var t=e();function n({children:e,className:n=``}){return(0,t.jsxs)(`div`,{className:`rounded-2xl border border-border bg-card/70 p-5 ${n}`,children:[(0,t.jsx)(`p`,{className:`section-label mb-1`,children:`Quick answer`}),(0,t.jsx)(`p`,{className:`text-sm md:text-base text-foreground/85 leading-relaxed`,children:e})]})}export{n as t};
